@@ -1,4 +1,6 @@
-<?php echo Form::open($paymentURL, array('method' => 'post', 'name' => 'dotpay')); ?>
+<h2>Zakup pakiet premium</h2>
+
+<?php echo Form::open($paymentURL, array('method' => 'post', 'name' => 'dotpay', 'class' => 'uniForm')); ?>
     <fieldset> 
     <?php
     foreach ($hidden as $key => $value)

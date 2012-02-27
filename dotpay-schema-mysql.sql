@@ -1,37 +1,33 @@
-CREATE  TABLE IF NOT EXISTS `payments` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `control` VARCHAR(32) NOT NULL ,
-  `amount` FLOAT(6,2) UNSIGNED NOT NULL ,
-  `description` VARCHAR(255) NOT NULL ,
-  `name` VARCHAR(120) NULL ,
-  `service` VARCHAR(50) NULL ,
-  PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `control_UNIQUE` (`control` ASC) )
-ENGINE = InnoDB;
 
-CREATE  TABLE IF NOT EXISTS `payment_incomings` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `payment_id` INT(11) UNSIGNED NOT NULL ,
-  `t_id` VARCHAR(60) NOT NULL ,
-  `t_status` TINYINT(1) UNSIGNED NOT NULL ,
-  `amount` FLOAT(6,2) NOT NULL ,
-  `email` VARCHAR(160) NOT NULL ,
-  `md5` VARCHAR(32) NOT NULL ,
-  `description` VARCHAR(255) NULL ,
-  `service` VARCHAR(50) NULL ,
-  `code` VARCHAR(32) NULL ,
-  `username` VARCHAR(6) NULL ,
-  `password` VARCHAR(32) NULL ,
-  `created` INT(10) UNSIGNED NOT NULL ,
-  `updated` INT(10) UNSIGNED NOT NULL ,
-  `status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 ,
-  UNIQUE INDEX `t_id_UNIQUE` (`t_id` ASC) ,
-  UNIQUE INDEX `md5_UNIQUE` (`md5` ASC) ,
-  PRIMARY KEY (`id`) ,
-  INDEX `fk_payment_incomings_payments1` (`payment_id` ASC) ,
-  CONSTRAINT `fk_payment_incomings_payments1`
-    FOREIGN KEY (`payment_id` )
-    REFERENCES `payments` (`id`)
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB;
+CREATE TABLE IF NOT EXISTS `payments` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `control` varchar(32) COLLATE utf8_polish_ci NOT NULL,
+  `amount` float(10,2) unsigned NOT NULL,
+  `description` varchar(255) COLLATE utf8_polish_ci NOT NULL,
+  `name` varchar(120) COLLATE utf8_polish_ci DEFAULT NULL,
+  `service` varchar(50) COLLATE utf8_polish_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `control_UNIQUE` (`control`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;
+
+CREATE TABLE IF NOT EXISTS `payment_incomings` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `payment_id` int(11) unsigned DEFAULT NULL,
+  `t_id` varchar(60) COLLATE utf8_polish_ci NOT NULL,
+  `t_status` tinyint(1) unsigned NOT NULL,
+  `amount` float(10,2) NOT NULL,
+  `email` varchar(160) COLLATE utf8_polish_ci NOT NULL,
+  `md5` varchar(32) COLLATE utf8_polish_ci NOT NULL,
+  `description` varchar(255) COLLATE utf8_polish_ci DEFAULT NULL,
+  `service` varchar(50) COLLATE utf8_polish_ci DEFAULT NULL,
+  `code` varchar(32) COLLATE utf8_polish_ci DEFAULT NULL,
+  `username` varchar(6) COLLATE utf8_polish_ci DEFAULT NULL,
+  `password` varchar(32) COLLATE utf8_polish_ci DEFAULT NULL,
+  `created` int(10) unsigned NOT NULL,
+  `updated` int(10) unsigned NOT NULL,
+  `status` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `t_id_UNIQUE` (`t_id`),
+  UNIQUE KEY `md5_UNIQUE` (`md5`),
+  KEY `fk_payment_incomings_payments1` (`payment_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_polish_ci;

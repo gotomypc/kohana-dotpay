@@ -107,49 +107,55 @@ class Kohana_Dotpay {
             $this->_incomingPaymentData = $_POST;
             if ($this->_checkMD5(Arr::get($_POST, 'md5')) && $this->_checkServerIP(Request::$client_ip)) {
                 $payment = ORM::factory('payment', array('control' => $this->_incomingPaymentData['control']));
+                $incomingPayment = ORM::factory('payment_incoming', array('t_id' => $this->_incomingPaymentData['t_id']));
                 if ($payment->loaded()) {
-                    
-                    $incomingPayment = ORM::factory('payment_incoming', array('t_id' => $this->_incomingPaymentData['t_id']));
                     if ($incomingPayment->loaded()) {
                         $incomingPayment->t_status      = $this->_incomingPaymentData['t_status'];
                         $incomingPayment->updated       = time();
                         $incomingPayment->status        = $this->_checkPayment($payment->id);
                     } else {
-                        $incomingPayment->payment_id    = $payment->id;
-                        $incomingPayment->t_id          = $this->_incomingPaymentData['t_id'];
-                        $incomingPayment->t_status      = $this->_incomingPaymentData['t_status'];
-                        $incomingPayment->amount        = $this->_amountFormat($this->_incomingPaymentData['amount']);
-                        $incomingPayment->email         = $this->_incomingPaymentData['email'];
-                        $incomingPayment->md5           = $this->_incomingPaymentData['md5'];
-                        $incomingPayment->created       = time();
-                        $incomingPayment->updated       = time();
-                        $incomingPayment->status        = $this->_checkPayment($payment->id);
-
-                        if (array_key_exists('description', $this->_incomingPaymentData))
-                            $incomingPayment->description   = $this->_incomingPaymentData['description'];
-
-                        if (array_key_exists('service', $this->_incomingPaymentData))
-                            $incomingPayment->service       = $this->_incomingPaymentData['service'];
-
-                        if (array_key_exists('code', $this->_incomingPaymentData))
-                            $incomingPayment->code          = $this->_hash($this->_incomingPaymentData['code']);
-                        
-                        if (array_key_exists('username', $this->_incomingPaymentData))
-                            $incomingPayment->username = $this->_incomingPaymentData['username'];
-                        
-                        if (array_key_exists('password', $this->_incomingPaymentData))
-                            $incomingPayment->password = $this->_hash($this->_incomingPaymentData['password']);
+                        $this->_incomingSave($incomingPayment, $payment->id);
                     }
-                    $incomingPayment->save();
-                    
-                    return $incomingPayment->saved();
+                } else {
+                    $this->_incomingSave($incomingPayment);
                 }
+
+                $incomingPayment->save();
+                return $incomingPayment->saved();
             } else {
                 $this->_incomingPaymentData = FALSE;
                 Kohana_Log::instance()->add(Log::ERROR, 'Wrong MD5 hash for payment');
             }
         }
         return FALSE;
+    }
+    
+    
+    private function _incomingSave($incomingPayment, $paymentID = NULL) {
+        $incomingPayment->payment_id    = $paymentID;
+        $incomingPayment->t_id          = $this->_incomingPaymentData['t_id'];
+        $incomingPayment->t_status      = $this->_incomingPaymentData['t_status'];
+        $incomingPayment->amount        = $this->_amountFormat($this->_incomingPaymentData['amount']);
+        $incomingPayment->email         = $this->_incomingPaymentData['email'];
+        $incomingPayment->md5           = $this->_incomingPaymentData['md5'];
+        $incomingPayment->created       = time();
+        $incomingPayment->updated       = time();
+        $incomingPayment->status        = $this->_checkPayment($paymentID);
+        
+        if (array_key_exists('description', $this->_incomingPaymentData))
+            $incomingPayment->description   = $this->_incomingPaymentData['description'];
+
+        if (array_key_exists('service', $this->_incomingPaymentData))
+            $incomingPayment->service   = $this->_incomingPaymentData['service'];
+
+        if (array_key_exists('code', $this->_incomingPaymentData))
+            $incomingPayment->code      = $this->_hash($this->_incomingPaymentData['code']);
+
+        if (array_key_exists('username', $this->_incomingPaymentData))
+            $incomingPayment->username  = $this->_incomingPaymentData['username'];
+
+        if (array_key_exists('password', $this->_incomingPaymentData))
+            $incomingPayment->password  = $this->_hash($this->_incomingPaymentData['password']);
     }
 
     public function returnAction() {
@@ -158,7 +164,7 @@ class Kohana_Dotpay {
     
     private function _checkPayment($paymentID) {
         $status         = $this->_getStatus();
-        $validAmount    = $this->_checkAmount($paymentID);
+        $validAmount    = ($paymentID > 0) ? $this->_checkAmount($paymentID) : TRUE;
         
         return (boolean) ($status === Kohana_Dotpay::STATUS_SUCCESS && $validAmount);
     }
@@ -181,6 +187,7 @@ class Kohana_Dotpay {
 
         return FALSE;
     }
+    
     private function _checkAmount($paymentID) {
         $payment = ORM::factory('payment', $paymentID);
         
