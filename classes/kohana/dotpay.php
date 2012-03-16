@@ -106,9 +106,10 @@ class Kohana_Dotpay {
         if ($_POST) {
             $this->_incomingPaymentData = $_POST;
             if ($this->_checkMD5(Arr::get($_POST, 'md5')) && $this->_checkServerIP(Request::$client_ip)) {
+                
                 $payment = ORM::factory('payment', array('control' => $this->_incomingPaymentData['control']));
-                $incomingPayment = ORM::factory('payment_incoming', array('t_id' => $this->_incomingPaymentData['t_id']));
                 if ($payment->loaded()) {
+                    $incomingPayment = ORM::factory('payment_incoming', array('t_id' => $this->_incomingPaymentData['t_id']));
                     if ($incomingPayment->loaded()) {
                         $incomingPayment->t_status      = $this->_incomingPaymentData['t_status'];
                         $incomingPayment->updated       = time();
@@ -117,9 +118,10 @@ class Kohana_Dotpay {
                         $this->_incomingSave($incomingPayment, $payment->id);
                     }
                 } else {
+                    $incomingPayment = ORM::factory('payment_incoming');
                     $this->_incomingSave($incomingPayment);
                 }
-
+        
                 $incomingPayment->save();
                 return $incomingPayment->saved();
             } else {
@@ -131,7 +133,7 @@ class Kohana_Dotpay {
     }
     
     
-    private function _incomingSave($incomingPayment, $paymentID = NULL) {
+    private function _incomingSave(&$incomingPayment, $paymentID = NULL) {
         $incomingPayment->payment_id    = $paymentID;
         $incomingPayment->t_id          = $this->_incomingPaymentData['t_id'];
         $incomingPayment->t_status      = $this->_incomingPaymentData['t_status'];
@@ -142,8 +144,11 @@ class Kohana_Dotpay {
         $incomingPayment->updated       = time();
         $incomingPayment->status        = $this->_checkPayment($paymentID);
         
+        if (array_key_exists('control', $this->_incomingPaymentData))
+            $incomingPayment->control       = $this->_incomingPaymentData['control'];
+        
         if (array_key_exists('description', $this->_incomingPaymentData))
-            $incomingPayment->description   = $this->_incomingPaymentData['description'];
+            $incomingPayment->description   = iconv("ISO-8859-2", "UTF-8", $this->_incomingPaymentData['description']);
 
         if (array_key_exists('service', $this->_incomingPaymentData))
             $incomingPayment->service   = $this->_incomingPaymentData['service'];

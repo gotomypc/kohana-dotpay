@@ -1,7 +1,7 @@
 
 CREATE TABLE IF NOT EXISTS `payments` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `control` varchar(32) COLLATE utf8_polish_ci NOT NULL,
+  `control` varchar(128) COLLATE utf8_polish_ci NOT NULL,
   `amount` float(10,2) unsigned NOT NULL,
   `description` varchar(255) COLLATE utf8_polish_ci NOT NULL,
   `name` varchar(120) COLLATE utf8_polish_ci DEFAULT NULL,
@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS `payments` (
 CREATE TABLE IF NOT EXISTS `payment_incomings` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `payment_id` int(11) unsigned DEFAULT NULL,
+  `control` varchar(128) COLLATE utf8_polish_ci DEFAULT NULL,
   `t_id` varchar(60) COLLATE utf8_polish_ci NOT NULL,
   `t_status` tinyint(1) unsigned NOT NULL,
   `amount` float(10,2) NOT NULL,

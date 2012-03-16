@@ -1,6 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
 class Model_Payment_Incoming extends ORM {
+
     protected $_belongs_to = array(
         'payment' => array(
             'model'       => 'payment',
@@ -11,6 +12,7 @@ class Model_Payment_Incoming extends ORM {
     protected $_table_columns = array(
         'id'                =>  array('type' => 'int'),
         'payment_id'        =>  array('type' => 'int'),
+        'control'           =>  array('type' => 'string'),
         't_id'              =>  array('type' => 'string'),
         't_status'          =>  array('type' => 'int'),
         'amount'            =>  array('type' => 'float'),
